@@ -8,7 +8,13 @@
       "Bash(npm bin:*)",
       "Bash(npx uipro:*)",
       "Bash(gh auth:*)",
-      "Bash(gh repo:*)"
+      "Bash(gh repo:*)",
+      "Bash(where python:*)",
+      "Bash(where python3:*)",
+      "Bash(where py:*)",
+      "Bash(\"/c/Users/user/AppData/Local/Programs/Python/Python312/python.exe\" \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"modern creative portfolio landing page stunning\" --design-system -p \"Stunning Portfolio\")",
+      "Bash(\"/c/Users/user/AppData/Local/Programs/Python/Python312/python.exe\" \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"glassmorphism dark elegant\" --domain style -n 3)",
+      "Bash(\"/c/Users/user/AppData/Local/Programs/Python/Python312/python.exe\" \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"layout responsive hero\" --stack html-tailwind)"
     ]
   }
 }
