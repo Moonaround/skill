@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axion — Creative Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Archivo', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            surface: '#0A0E1A',
+            'surface-light': '#111827',
+            accent: '#6366F1',
+            'accent-light': '#818CF8',
+            glow: '#A78BFA',
+            warm: '#F97316',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0A0E1A; color: #E2E8F0; }
+
+    /* Gradient orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      pointer-events: none;
+      will-change: transform;
+    }
+    .orb-1 { width: 600px; height: 600px; background: #6366F1; top: -200px; left: -100px; }
+    .orb-2 { width: 500px; height: 500px; background: #A78BFA; top: 200px; right: -150px; }
+    .orb-3 { width: 400px; height: 400px; background: #F97316; bottom: -100px; left: 30%; }
+
+    /* Glass card */
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-strong {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Animations */
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes slideRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(1.5); opacity: 0; } }
+
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-fade-up { animation: fadeUp 0.8s ease-out both; }
+    .animate-scale-in { animation: scaleIn 0.6s ease-out both; }
+    .animate-slide-right { animation: slideRight 0.7s ease-out both; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #818CF8, #A78BFA, #F97316);
+      background-size: 200% 200%;
+      animation: gradient 4s ease infinite;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Navbar */
+    .nav-blur {
+      background: rgba(10, 14, 26, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* Hover glow */
+    .hover-glow { transition: all 0.3s ease; }
+    .hover-glow:hover {
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), 0 0 60px rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    /* Stat counter */
+    .stat-line {
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-line::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #6366F1, #A78BFA, #F97316);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stat-line.visible::after { transform: scaleX(1); }
+
+    /* Smooth image overlay */
+    .project-card .overlay {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .project-card:hover .overlay { opacity: 1; }
+    .project-card img {
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .project-card:hover img { transform: scale(1.05); }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0A0E1A; }
+    ::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 4px; }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+  <!-- Navbar -->
+  <nav class="nav-blur fixed top-4 left-4 right-4 z-50 rounded-2xl px-6 py-4 flex items-center justify-between border border-white/5">
+    <a href="#" class="font-heading font-800 text-xl tracking-tight">
+      <span class="gradient-text">AXION</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#work" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">Work</a>
+      <a href="#services" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">Services</a>
+      <a href="#about" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">About</a>
+      <a href="#testimonials" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">Testimonials</a>
+    </div>
+    <a href="#contact" class="glass px-5 py-2.5 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
+      Let's Talk
+    </a>
+    <!-- Mobile menu button -->
+    <button id="menu-btn" class="md:hidden cursor-pointer text-white" aria-label="Open menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="fixed inset-0 z-40 nav-blur hidden flex-col items-center justify-center gap-8">
+    <a href="#work" class="text-2xl text-white cursor-pointer mobile-link">Work</a>
+    <a href="#services" class="text-2xl text-white cursor-pointer mobile-link">Services</a>
+    <a href="#about" class="text-2xl text-white cursor-pointer mobile-link">About</a>
+    <a href="#testimonials" class="text-2xl text-white cursor-pointer mobile-link">Testimonials</a>
+    <a href="#contact" class="text-2xl text-white cursor-pointer mobile-link">Contact</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2 animate-float"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#0A0E1A_70%)]"></div>
+
+    <div class="relative z-10 text-center max-w-5xl mx-auto pt-24">
+      <div class="animate-fade-up" style="animation-delay: 0.1s">
+        <span class="inline-block glass px-4 py-1.5 rounded-full text-xs font-medium text-accent-light tracking-wider uppercase mb-8">
+          Creative Studio — Est. 2024
+        </span>
+      </div>
+      <h1 class="font-heading font-900 text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight animate-fade-up" style="animation-delay: 0.2s">
+        We craft<br>
+        <span class="gradient-text">digital</span> experiences<br>
+        that <span class="gradient-text">inspire</span>
+      </h1>
+      <p class="mt-8 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-up" style="animation-delay: 0.4s">
+        Award-winning design studio specializing in brand identity, web experiences, and digital products that push creative boundaries.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style="animation-delay: 0.6s">
+        <a href="#work" class="group relative inline-flex items-center gap-2 bg-accent hover:bg-accent-light px-8 py-4 rounded-2xl text-white font-medium transition-all duration-300 cursor-pointer">
+          View Our Work
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+        <a href="#contact" class="glass-strong px-8 py-4 rounded-2xl text-white font-medium hover:bg-white/10 transition-colors duration-200 cursor-pointer">
+          Start a Project
+        </a>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="mt-20 animate-fade-up" style="animation-delay: 0.8s">
+        <div class="w-6 h-10 rounded-full border-2 border-slate-600 mx-auto flex justify-center">
+          <div class="w-1 h-2 bg-slate-400 rounded-full mt-2 animate-bounce"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="relative py-16 px-4">
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="stat-line reveal text-center pb-6">
+        <div class="font-heading font-800 text-4xl md:text-5xl gradient-text" data-count="150">0</div>
+        <div class="text-sm text-slate-400 mt-2">Projects Delivered</div>
+      </div>
+      <div class="stat-line reveal text-center pb-6" style="transition-delay: 0.1s">
+        <div class="font-heading font-800 text-4xl md:text-5xl gradient-text" data-count="40">0</div>
+        <div class="text-sm text-slate-400 mt-2">Global Clients</div>
+      </div>
+      <div class="stat-line reveal text-center pb-6" style="transition-delay: 0.2s">
+        <div class="font-heading font-800 text-4xl md:text-5xl gradient-text" data-count="12">0</div>
+        <div class="text-sm text-slate-400 mt-2">Design Awards</div>
+      </div>
+      <div class="stat-line reveal text-center pb-6" style="transition-delay: 0.3s">
+        <div class="font-heading font-800 text-4xl md:text-5xl gradient-text" data-count="98">0</div>
+        <div class="text-sm text-slate-400 mt-2">% Client Satisfaction</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work / Portfolio -->
+  <section id="work" class="relative py-24 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="reveal">
+        <span class="text-accent-light text-sm font-medium tracking-wider uppercase">Selected Work</span>
+        <h2 class="font-heading font-800 text-4xl md:text-5xl mt-3 tracking-tight">Projects we're<br>proud of</h2>
+      </div>
+
+      <div class="mt-16 grid md:grid-cols-2 gap-6">
+        <!-- Project 1 -->
+        <div class="project-card reveal group relative rounded-3xl overflow-hidden cursor-pointer hover-glow glass aspect-[4/3]">
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/30 to-purple-700/30"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center p-8">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center">
+                <svg class="w-8 h-8 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg>
+              </div>
+              <h3 class="font-heading font-700 text-2xl text-white">Nova Finance</h3>
+              <p class="text-slate-300 text-sm mt-2">Brand Identity & Web Platform</p>
+            </div>
+          </div>
+          <div class="overlay absolute inset-0 bg-accent/20 flex items-end p-8">
+            <span class="text-white text-sm font-medium flex items-center gap-2">
+              View Case Study
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card reveal group relative rounded-3xl overflow-hidden cursor-pointer hover-glow glass aspect-[4/3]" style="transition-delay: 0.1s">
+          <div class="absolute inset-0 bg-gradient-to-br from-orange-500/25 to-rose-600/25"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center p-8">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center">
+                <svg class="w-8 h-8 text-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>
+              </div>
+              <h3 class="font-heading font-700 text-2xl text-white">Luminary Health</h3>
+              <p class="text-slate-300 text-sm mt-2">Mobile App & Design System</p>
+            </div>
+          </div>
+          <div class="overlay absolute inset-0 bg-warm/20 flex items-end p-8">
+            <span class="text-white text-sm font-medium flex items-center gap-2">
+              View Case Study
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card reveal group relative rounded-3xl overflow-hidden cursor-pointer hover-glow glass aspect-[4/3]" style="transition-delay: 0.2s">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/25 to-teal-600/25"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center p-8">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center">
+                <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+              </div>
+              <h3 class="font-heading font-700 text-2xl text-white">Verdant Eco</h3>
+              <p class="text-slate-300 text-sm mt-2">E-Commerce & Sustainability Platform</p>
+            </div>
+          </div>
+          <div class="overlay absolute inset-0 bg-emerald-500/20 flex items-end p-8">
+            <span class="text-white text-sm font-medium flex items-center gap-2">
+              View Case Study
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="project-card reveal group relative rounded-3xl overflow-hidden cursor-pointer hover-glow glass aspect-[4/3]" style="transition-delay: 0.3s">
+          <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/25 to-blue-600/25"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center p-8">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center">
+                <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v-5.5"/></svg>
+              </div>
+              <h3 class="font-heading font-700 text-2xl text-white">Pulse Analytics</h3>
+              <p class="text-slate-300 text-sm mt-2">Dashboard & Data Visualization</p>
+            </div>
+          </div>
+          <div class="overlay absolute inset-0 bg-cyan-500/20 flex items-end p-8">
+            <span class="text-white text-sm font-medium flex items-center gap-2">
+              View Case Study
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="relative py-24 px-4">
+    <div class="orb" style="width:400px;height:400px;background:#6366F1;top:50%;left:-200px;filter:blur(100px);opacity:0.2"></div>
+    <div class="max-w-6xl mx-auto">
+      <div class="reveal text-center">
+        <span class="text-accent-light text-sm font-medium tracking-wider uppercase">What We Do</span>
+        <h2 class="font-heading font-800 text-4xl md:text-5xl mt-3 tracking-tight">Services built for<br><span class="gradient-text">ambitious brands</span></h2>
+      </div>
+
+      <div class="mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Service 1 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8 cursor-pointer group transition-all duration-300">
+          <div class="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center mb-6 group-hover:bg-accent/30 transition-colors duration-300">
+            <svg class="w-7 h-7 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg>
+          </div>
+          <h3 class="font-heading font-700 text-xl text-white">Brand Identity</h3>
+          <p class="text-slate-400 text-sm mt-3 leading-relaxed">Complete visual identity systems including logo, typography, color, and brand guidelines that tell your story.</p>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8 cursor-pointer group transition-all duration-300" style="transition-delay: 0.1s">
+          <div class="w-14 h-14 rounded-2xl bg-warm/20 flex items-center justify-center mb-6 group-hover:bg-warm/30 transition-colors duration-300">
+            <svg class="w-7 h-7 text-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/></svg>
+          </div>
+          <h3 class="font-heading font-700 text-xl text-white">Web Development</h3>
+          <p class="text-slate-400 text-sm mt-3 leading-relaxed">High-performance websites and web applications built with cutting-edge technology and pixel-perfect attention to detail.</p>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8 cursor-pointer group transition-all duration-300" style="transition-delay: 0.2s">
+          <div class="w-14 h-14 rounded-2xl bg-glow/20 flex items-center justify-center mb-6 group-hover:bg-glow/30 transition-colors duration-300">
+            <svg class="w-7 h-7 text-glow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+          </div>
+          <h3 class="font-heading font-700 text-xl text-white">Mobile Apps</h3>
+          <p class="text-slate-400 text-sm mt-3 leading-relaxed">Native and cross-platform mobile applications designed for seamless experiences across iOS and Android.</p>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8 cursor-pointer group transition-all duration-300" style="transition-delay: 0.3s">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-6 group-hover:bg-emerald-500/30 transition-colors duration-300">
+            <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z"/></svg>
+          </div>
+          <h3 class="font-heading font-700 text-xl text-white">UI/UX Design</h3>
+          <p class="text-slate-400 text-sm mt-3 leading-relaxed">Research-driven interface design and user experience strategy that converts visitors into loyal customers.</p>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8 cursor-pointer group transition-all duration-300" style="transition-delay: 0.4s">
+          <div class="w-14 h-14 rounded-2xl bg-rose-500/20 flex items-center justify-center mb-6 group-hover:bg-rose-500/30 transition-colors duration-300">
+            <svg class="w-7 h-7 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-1.5 3 1.5-3 1.5-3-1.5z"/></svg>
+          </div>
+          <h3 class="font-heading font-700 text-xl text-white">Motion Design</h3>
+          <p class="text-slate-400 text-sm mt-3 leading-relaxed">Captivating animations and micro-interactions that bring interfaces to life and delight your users.</p>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8 cursor-pointer group transition-all duration-300" style="transition-delay: 0.5s">
+          <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6 group-hover:bg-cyan-500/30 transition-colors duration-300">
+            <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+          </div>
+          <h3 class="font-heading font-700 text-xl text-white">Performance</h3>
+          <p class="text-slate-400 text-sm mt-3 leading-relaxed">Speed optimization, Core Web Vitals tuning, and technical audits to ensure your digital products run flawlessly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="relative py-24 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div class="reveal">
+          <span class="text-accent-light text-sm font-medium tracking-wider uppercase">About Us</span>
+          <h2 class="font-heading font-800 text-4xl md:text-5xl mt-3 tracking-tight">
+            A team that<br><span class="gradient-text">lives and breathes</span><br>design
+          </h2>
+          <p class="text-slate-400 mt-6 leading-relaxed">
+            Founded in 2024, Axion is a collective of designers, developers, and strategists who believe that exceptional digital experiences are the intersection of art and engineering.
+          </p>
+          <p class="text-slate-400 mt-4 leading-relaxed">
+            We partner with forward-thinking brands to create work that not only looks beautiful but drives measurable results. Every pixel, every line of code, every interaction is crafted with purpose.
+          </p>
+          <div class="mt-8 flex gap-4">
+            <a href="#contact" class="inline-flex items-center gap-2 bg-accent hover:bg-accent-light px-6 py-3 rounded-xl text-white font-medium transition-colors duration-200 cursor-pointer">
+              Work With Us
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="reveal grid grid-cols-2 gap-4" style="transition-delay: 0.2s">
+          <div class="glass rounded-3xl p-6 hover-glow">
+            <div class="font-heading font-800 text-3xl gradient-text">8+</div>
+            <div class="text-sm text-slate-400 mt-1">Years Combined Experience</div>
+          </div>
+          <div class="glass rounded-3xl p-6 hover-glow">
+            <div class="font-heading font-800 text-3xl gradient-text">24/7</div>
+            <div class="text-sm text-slate-400 mt-1">Support & Communication</div>
+          </div>
+          <div class="glass rounded-3xl p-6 hover-glow">
+            <div class="font-heading font-800 text-3xl gradient-text">100%</div>
+            <div class="text-sm text-slate-400 mt-1">Custom Solutions</div>
+          </div>
+          <div class="glass rounded-3xl p-6 hover-glow">
+            <div class="font-heading font-800 text-3xl gradient-text">Fast</div>
+            <div class="text-sm text-slate-400 mt-1">Turnaround Time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="relative py-24 px-4 overflow-hidden">
+    <div class="orb" style="width:500px;height:500px;background:#A78BFA;bottom:-200px;right:-100px;filter:blur(100px);opacity:0.15"></div>
+    <div class="max-w-6xl mx-auto">
+      <div class="reveal text-center">
+        <span class="text-accent-light text-sm font-medium tracking-wider uppercase">Testimonials</span>
+        <h2 class="font-heading font-800 text-4xl md:text-5xl mt-3 tracking-tight">What our clients<br><span class="gradient-text">say about us</span></h2>
+      </div>
+
+      <div class="mt-16 grid md:grid-cols-3 gap-6">
+        <!-- Testimonial 1 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8">
+          <div class="flex gap-1 mb-4">
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed">"Axion transformed our entire digital presence. The attention to detail and creative vision exceeded everything we imagined. Our conversions increased by 340% within the first quarter."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-glow flex items-center justify-center text-white font-bold text-sm">SR</div>
+            <div>
+              <div class="text-white text-sm font-medium">Sarah Reynolds</div>
+              <div class="text-slate-500 text-xs">CEO, Nova Finance</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8" style="transition-delay: 0.1s">
+          <div class="flex gap-1 mb-4">
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed">"Working with Axion felt like having an extension of our own team. They understood our vision instantly and delivered a product that our users absolutely love. Truly world-class."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-warm to-rose-500 flex items-center justify-center text-white font-bold text-sm">MK</div>
+            <div>
+              <div class="text-white text-sm font-medium">Marcus Kim</div>
+              <div class="text-slate-500 text-xs">CTO, Luminary Health</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="reveal glass hover-glow rounded-3xl p-8" style="transition-delay: 0.2s">
+          <div class="flex gap-1 mb-4">
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-warm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed">"The design system Axion created for us has become the foundation of everything we build. It's elegant, scalable, and our engineering team loves working with it. A game changer."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">EP</div>
+            <div>
+              <div class="text-white text-sm font-medium">Elena Petrova</div>
+              <div class="text-slate-500 text-xs">Head of Product, Verdant Eco</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA / Contact -->
+  <section id="contact" class="relative py-24 px-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="reveal glass-strong rounded-[2rem] p-8 sm:p-12 md:p-16 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-warm/10"></div>
+        <div class="relative z-10">
+          <span class="text-accent-light text-sm font-medium tracking-wider uppercase">Start a Project</span>
+          <h2 class="font-heading font-800 text-4xl md:text-5xl mt-4 tracking-tight">
+            Let's build something<br><span class="gradient-text">extraordinary</span> together
+          </h2>
+          <p class="text-slate-400 mt-6 max-w-xl mx-auto leading-relaxed">
+            Have a project in mind? We'd love to hear about it. Drop us a message and we'll get back to you within 24 hours.
+          </p>
+
+          <form class="mt-10 max-w-md mx-auto flex flex-col gap-4" onsubmit="event.preventDefault()">
+            <label for="name" class="sr-only">Your Name</label>
+            <input id="name" type="text" placeholder="Your Name" class="w-full glass rounded-xl px-5 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-accent/50 bg-transparent border-white/10">
+            <label for="email" class="sr-only">Your Email</label>
+            <input id="email" type="email" placeholder="Your Email" class="w-full glass rounded-xl px-5 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-accent/50 bg-transparent border-white/10">
+            <label for="message" class="sr-only">Your Message</label>
+            <textarea id="message" rows="4" placeholder="Tell us about your project..." class="w-full glass rounded-xl px-5 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-accent/50 bg-transparent border-white/10 resize-none"></textarea>
+            <button type="submit" class="w-full bg-accent hover:bg-accent-light text-white font-medium py-4 rounded-xl transition-colors duration-200 cursor-pointer">
+              Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-12 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="font-heading font-800 text-xl">
+        <span class="gradient-text">AXION</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="#" class="text-slate-500 hover:text-white transition-colors duration-200 cursor-pointer" aria-label="Twitter">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors duration-200 cursor-pointer" aria-label="GitHub">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        </a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors duration-200 cursor-pointer" aria-label="LinkedIn">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors duration-200 cursor-pointer" aria-label="Dribbble">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308a10.178 10.178 0 004.392-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4a10.02 10.02 0 006.29 2.166c1.42 0 2.77-.29 4.006-.816zm-11.62-2.58c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248-1.698-3.018-3.53-5.558-3.8-5.928-2.868 1.35-5.01 3.99-5.676 7.17zM9.6 2.052c.282.38 2.145 2.914 3.822 6 3.645-1.365 5.19-3.44 5.373-3.702A10.005 10.005 0 0012 1.818c-.83 0-1.632.08-2.4.234zm10.335 3.483c-.218.29-1.91 2.478-5.69 4.012.242.49.477.99.7 1.486.08.18.154.36.22.53 3.41-.43 6.8.26 7.14.33-.02-2.42-.88-4.64-2.37-6.358z"/></svg>
+        </a>
+      </div>
+      <div class="text-slate-500 text-sm">
+        &copy; 2024 Axion Studio. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const revealElements = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    revealElements.forEach(el => observer.observe(el));
+
+    // Counter animation
+    const counters = document.querySelectorAll('[data-count]');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const target = parseInt(entry.target.dataset.count);
+          let current = 0;
+          const increment = target / 60;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              entry.target.textContent = target + '+';
+              clearInterval(timer);
+            } else {
+              entry.target.textContent = Math.floor(current) + '+';
+            }
+          }, 16);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(el => counterObserver.observe(el));
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      mobileMenu.classList.toggle('flex');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        mobileMenu.classList.remove('flex');
+      });
+    });
+
+    // Navbar background on scroll
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        nav.style.borderColor = 'rgba(255,255,255,0.1)';
+      } else {
+        nav.style.borderColor = 'rgba(255,255,255,0.05)';
+      }
+    });
+  </script>
+</body>
+</html>
