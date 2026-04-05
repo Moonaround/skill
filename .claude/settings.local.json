@@ -6,7 +6,9 @@
       "Bash(uipro init:*)",
       "Bash(npm root:*)",
       "Bash(npm bin:*)",
-      "Bash(npx uipro:*)"
+      "Bash(npx uipro:*)",
+      "Bash(gh auth:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }
